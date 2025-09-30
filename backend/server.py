@@ -801,6 +801,10 @@ async def seed_database():
     # Clear existing data
     await db.products.delete_many({})
     await db.addons.delete_many({})
+    await db.salads.delete_many({})
+    await db.sauces.delete_many({})
+    await db.delivery_zones.delete_many({})
+    await db.coupons.delete_many({})
     await db.reviews.delete_many({})
     await db.blog_posts.delete_many({})
     await db.campaigns.delete_many({})
