@@ -23,20 +23,22 @@ const API = `${BACKEND_URL}/api`;
 // Main App Component
 function App() {
   return (
-    <div className="App" dir="rtl">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/business-meals" element={<BusinessMeals />} />
-          <Route path="/burger-only" element={<BurgerOnly />} />
-          <Route path="/extras-sides-drinks" element={<ExtrasSidesDrinks />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/order-status/:orderId" element={<OrderStatus />} />
-          <Route path="/admin" element={<AdminPanel />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <CartProvider>
+      <div className="App" dir="rtl">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/business-meals" element={<BusinessMeals />} />
+            <Route path="/burger-only" element={<BurgerOnly />} />
+            <Route path="/extras-sides-drinks" element={<ExtrasSidesDrinks />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-status/:orderId" element={<OrderStatus />} />
+            <Route path="/admin" element={<AdminPanel />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </CartProvider>
   );
 }
 
