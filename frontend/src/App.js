@@ -1239,7 +1239,7 @@ const AdminPanel = () => {
           <h1 className="text-xl font-bold">פאנל ניהול - RS Burger</h1>
           <Button 
             variant="outline"
-            onClick={() => window.location.href = '/'}
+            onClick={() => navigate('/')}
           >
             לאתר
           </Button>
