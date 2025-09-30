@@ -187,7 +187,7 @@ const Home = () => {
               <p className="text-gray-600 mb-6">בורגר + צ'יפס + שתייה</p>
               <Button 
                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
-                onClick={() => window.location.href = '/business-meals'}
+                onClick={() => navigate('/business-meals')}
               >
                 בחר
               </Button>
