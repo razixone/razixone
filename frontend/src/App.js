@@ -215,7 +215,7 @@ const Home = () => {
               <p className="text-gray-600 mb-6">תוספות וצדדים טעימים</p>
               <Button 
                 className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold"
-                onClick={() => window.location.href = '/extras-sides-drinks'}
+                onClick={() => navigate('/extras-sides-drinks')}
               >
                 בחר
               </Button>
