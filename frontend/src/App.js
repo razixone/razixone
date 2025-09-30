@@ -597,6 +597,7 @@ const ExtrasSidesDrinks = () => {
   const [drinks, setDrinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
