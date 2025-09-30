@@ -1337,12 +1337,12 @@ const AdminPanel = () => {
   );
 };
 
-// Wrap App with CartProvider
+// Wrap App with Toaster
 const AppWithProvider = () => (
-  <CartProvider>
+  <>
     <App />
     <Toaster position="top-center" />
-  </CartProvider>
+  </>
 );
 
 export default AppWithProvider;
