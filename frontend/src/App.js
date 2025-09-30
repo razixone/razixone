@@ -878,7 +878,7 @@ const Checkout = () => {
         <div className="mb-8">
           <Button 
             variant="outline" 
-            onClick={() => window.location.href = '/cart'}
+            onClick={() => navigate('/cart')}
             className="mb-4"
           >
             ← חזור לעגלה
