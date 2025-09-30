@@ -716,6 +716,7 @@ const ExtrasSidesDrinks = () => {
 // Cart Component
 const Cart = () => {
   const { cart, removeFromCart, getTotal, clearCart } = useCart();
+  const navigate = useNavigate();
 
   if (cart.length === 0) {
     return (
