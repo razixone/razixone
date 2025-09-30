@@ -796,7 +796,7 @@ const Cart = () => {
                   נקה עגלה
                 </Button>
                 <Button 
-                  onClick={() => window.location.href = '/checkout'}
+                  onClick={() => navigate('/checkout')}
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                 >
                   לקופה
