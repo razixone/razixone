@@ -1,0 +1,94 @@
+{
+  "summary": "Backend API testing completed. 13/14 tests passed.",
+  "total_tests": 14,
+  "passed_tests": 13,
+  "failed_tests": 1,
+  "success_rate": 92.85714285714286,
+  "test_results": [
+    {
+      "test": "Root API",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:43.936224"
+    },
+    {
+      "test": "Seed Database",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:43.981774"
+    },
+    {
+      "test": "Get All Products",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:44.026714"
+    },
+    {
+      "test": "Get Business Meals",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:44.064362"
+    },
+    {
+      "test": "Get Burger Only",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:44.142565"
+    },
+    {
+      "test": "Get Sides",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:44.190146"
+    },
+    {
+      "test": "Get Drinks",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:44.267563"
+    },
+    {
+      "test": "Get Addons",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:44.308279"
+    },
+    {
+      "test": "Get Settings",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:44.349374"
+    },
+    {
+      "test": "Update Settings",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:44.388209"
+    },
+    {
+      "test": "Invalid Admin PIN",
+      "success": true,
+      "details": "Status: 401",
+      "timestamp": "2025-09-30T11:06:44.425513"
+    },
+    {
+      "test": "Get Products for Order Test",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:44.468759"
+    },
+    {
+      "test": "Create Order",
+      "success": false,
+      "details": "Expected 201, got 200. Response: {\"id\":\"bbae01b5-10c0-4a9d-9b30-c344ec3f73aa\",\"customer_name\":\"בדיקה טסט\",\"customer_phone\":\"050-1234567\",\"order_type\":\"איסוף\",\"delivery_address\":null,\"notes\":\"בדיקה אוטומטית\",\"items\":[{\"id\":\"586e3ad3-e",
+      "timestamp": "2025-09-30T11:06:44.531534"
+    },
+    {
+      "test": "Get All Orders",
+      "success": true,
+      "details": "Status: 200",
+      "timestamp": "2025-09-30T11:06:44.572279"
+    }
+  ],
+  "timestamp": "2025-09-30T11:06:44.573023"
+}
