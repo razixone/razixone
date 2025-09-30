@@ -878,6 +878,63 @@ async def seed_database():
     
     await db.addons.insert_many(addons_to_insert)
     
+    # Salads
+    salad_names = [
+        "עגבניות",
+        "בצל", 
+        "חסה",
+        "מלפפון"
+    ]
+    
+    salads_to_insert = []
+    for salad_name in salad_names:
+        salad = Salad(name_he=salad_name)
+        salads_to_insert.append(salad.dict())
+    
+    await db.salads.insert_many(salads_to_insert)
+    
+    # Sauces
+    sauce_names = [
+        "אלפיים",
+        "מיונז",
+        "קטשופ", 
+        "חריף",
+        "ברביקיו"
+    ]
+    
+    sauces_to_insert = []
+    for sauce_name in sauce_names:
+        sauce = Sauce(name_he=sauce_name)
+        sauces_to_insert.append(sauce.dict())
+    
+    await db.sauces.insert_many(sauces_to_insert)
+    
+    # Delivery Zones
+    delivery_zones = [
+        DeliveryZone(name_he="דאליית אל כרמל - מרכז", radius_km=3.0, delivery_fee=15.0),
+        DeliveryZone(name_he="דאליית אל כרמל - פריפריה", radius_km=7.0, delivery_fee=20.0),
+        DeliveryZone(name_he="עוספיא", radius_km=5.0, delivery_fee=18.0)
+    ]
+    
+    zones_to_insert = []
+    for zone in delivery_zones:
+        zones_to_insert.append(zone.dict())
+    
+    await db.delivery_zones.insert_many(zones_to_insert)
+    
+    # Sample Coupons
+    sample_coupons = [
+        Coupon(code="RS10", discount_amount=10.0, min_order_amount=50.0, max_uses=100),
+        Coupon(code="FIRST20", discount_percent=20.0, min_order_amount=30.0, max_uses=50),
+        Coupon(code="WEEKEND15", discount_amount=15.0, min_order_amount=60.0)
+    ]
+    
+    coupons_to_insert = []
+    for coupon in sample_coupons:
+        coupons_to_insert.append(prepare_for_mongo(coupon.dict()))
+    
+    await db.coupons.insert_many(coupons_to_insert)
+    
     # Sample reviews
     sample_reviews = [
         Review(customer_name="דוד כהן", rating=5, comment="הבורגר הכי טעים שאכלתי! שירות מעולה", approved=True),
