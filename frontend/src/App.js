@@ -646,7 +646,7 @@ const ExtrasSidesDrinks = () => {
         <div className="mb-8">
           <Button 
             variant="outline" 
-            onClick={() => window.location.href = '/'}
+            onClick={() => navigate('/')}
             className="mb-4"
           >
             ← חזור לדף הבית
