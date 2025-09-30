@@ -223,13 +223,13 @@ const HeroSection = () => {
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
             <span className="text-yellow-400">RS Burger</span>
             <br />
-            <span className="text-3xl md:text-4xl text-gray-300">המבורגרים הכי טעימים</span>
+            <span className="text-3xl md:text-4xl text-gray-300">ההמבורגר הכי טוב בעוספיא ובדאלית אל כרמל</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-300 mb-8 leading-relaxed">
             בשר איכותי • לחמניות טריות • טעם בלתי נשכח
             <br />
-            <span className="text-yellow-400">📍 דאלית אל כרמל</span>
+            <span className="text-yellow-400">📍 תחנת דלק אל-עוקף, דאליית אל כרמל</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
