@@ -1131,7 +1131,7 @@ const OrderStatus = () => {
           </Card>
 
           <Button 
-            onClick={() => window.location.href = '/'}
+            onClick={() => navigate('/')}
             className="w-full"
             variant="outline"
           >
