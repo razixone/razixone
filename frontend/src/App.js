@@ -1206,14 +1206,19 @@ const BusinessMeals = () => {
           axios.get(`${API}/products/drink`)
         ]);
         
-        setProducts(productsRes.data);
-        setAddons(addonsRes.data);
-        setSalads(saladsRes.data);
-        setSauces(saucesRes.data);
-        setDrinks(drinksRes.data);
+        setProducts(productsRes.data || []);
+        setAddons(addonsRes.data || []);
+        setSalads(saladsRes.data || []);
+        setSauces(saucesRes.data || []);
+        setDrinks(drinksRes.data || []);
       } catch (error) {
         console.error('Error fetching data:', error);
-        toast.error('שגיאה בטעינת הנתונים');
+        toast.error('שגיאה בטעינת הנתונים - מנסה שוב...');
+        
+        // Retry after delay
+        setTimeout(() => {
+          fetchData();
+        }, 2000);
       } finally {
         setLoading(false);
       }
