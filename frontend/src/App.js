@@ -329,6 +329,13 @@ const Home = () => {
     };
 
     fetchData();
+    
+    // Timeout fallback to ensure loading doesn't persist indefinitely
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 10000); // 10 seconds timeout
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   if (loading) {
