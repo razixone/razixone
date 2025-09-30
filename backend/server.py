@@ -358,6 +358,56 @@ async def get_addons():
     addons = await db.addons.find().to_list(length=None)
     return [Addon(**addon) for addon in addons]
 
+# Salads
+@api_router.get("/salads", response_model=List[Salad])
+async def get_salads():
+    salads = await db.salads.find().to_list(length=None)
+    return [Salad(**salad) for salad in salads]
+
+# Sauces
+@api_router.get("/sauces", response_model=List[Sauce])
+async def get_sauces():
+    sauces = await db.sauces.find().to_list(length=None)
+    return [Sauce(**sauce) for sauce in sauces]
+
+# Delivery Zones
+@api_router.get("/delivery-zones", response_model=List[DeliveryZone])
+async def get_delivery_zones():
+    zones = await db.delivery_zones.find({"active": True}).to_list(length=None)
+    return [DeliveryZone(**zone) for zone in zones]
+
+# Coupons
+@api_router.post("/coupons/validate")
+async def validate_coupon(coupon_code: str, order_total: float):
+    coupon = await db.coupons.find_one({"code": coupon_code.upper(), "active": True})
+    if not coupon:
+        raise HTTPException(status_code=404, detail="קופון לא נמצא")
+    
+    # Check expiry
+    if coupon.get("expires_at") and datetime.fromisoformat(coupon["expires_at"]) < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="קופון פג תוקף")
+    
+    # Check usage limit
+    if coupon.get("max_uses") and coupon.get("current_uses", 0) >= coupon["max_uses"]:
+        raise HTTPException(status_code=400, detail="קופון מוצה")
+    
+    # Check minimum order
+    if order_total < coupon.get("min_order_amount", 0):
+        raise HTTPException(status_code=400, detail=f"הזמנה מינימלית: ₪{coupon['min_order_amount']}")
+    
+    # Calculate discount
+    if coupon.get("discount_percent"):
+        discount = (order_total * coupon["discount_percent"]) / 100
+    else:
+        discount = coupon.get("discount_amount", 0)
+    
+    return {
+        "valid": True,
+        "discount_amount": discount,
+        "coupon_code": coupon_code.upper(),
+        "message": f"הנחה של ₪{discount:.0f} הוחלה"
+    }
+
 # Loyalty Program
 @api_router.post("/loyalty/register", response_model=LoyaltyAccount)
 async def register_loyalty_account(account_data: LoyaltyAccountCreate):
