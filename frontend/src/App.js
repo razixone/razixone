@@ -728,7 +728,7 @@ const Cart = () => {
               <h2 className="text-xl font-semibold mb-4">העגלה ריקה</h2>
               <p className="text-gray-600 mb-6">עדיין לא הוספת מוצרים לעגלה</p>
               <Button 
-                onClick={() => window.location.href = '/'}
+                onClick={() => navigate('/')}
                 className="bg-yellow-500 hover:bg-yellow-600 text-black"
               >
                 חזור להזמנה
