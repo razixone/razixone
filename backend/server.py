@@ -195,11 +195,13 @@ class Order(BaseModel):
     loyalty_account_id: Optional[str] = None
     order_type: OrderType
     delivery_address: Optional[str] = None
+    delivery_zone_id: Optional[str] = None
     notes: Optional[str] = None
     items: List[OrderItem]
     subtotal: float
     delivery_fee: float = 0.0
     discount: float = 0.0
+    coupon_code: Optional[str] = None
     loyalty_points_used: float = 0.0
     loyalty_points_earned: float = 0.0
     total: float
