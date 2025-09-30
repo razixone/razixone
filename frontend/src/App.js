@@ -866,7 +866,7 @@ const Checkout = () => {
   };
 
   if (cart.length === 0) {
-    window.location.href = '/';
+    navigate('/');
     return null;
   }
 
