@@ -583,10 +583,10 @@ const AboutPage = () => {
             <div className="bg-gradient-to-r from-yellow-400/10 to-transparent rounded-2xl p-8 text-center border border-yellow-400/30">
               <h3 className="text-2xl font-bold text-yellow-400 mb-4">המיקום שלנו</h3>
               <p className="text-lg text-gray-300 mb-4">
-                📍 דאלית אל כרמל - אנחנו נמצאים במקומות שונים בעיר לאורך השבוע
+                📍 תחנת דלק אל-עוקף, דאליית אל כרמל
               </p>
               <p className="text-gray-400 mb-6">
-                עקבו אחרינו ברשתות החברתיות לעדכונים על המיקום היומי שלנו
+                עקבו אחרינו ברשתות החברתיות לעדכונים ומבצעים
               </p>
               <Button 
                 className="bg-yellow-400 text-black hover:bg-yellow-300 font-bold"
