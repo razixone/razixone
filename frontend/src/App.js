@@ -813,6 +813,7 @@ const Cart = () => {
 // Checkout Component
 const Checkout = () => {
   const { cart, getTotal, clearCart } = useCart();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_phone: '',
