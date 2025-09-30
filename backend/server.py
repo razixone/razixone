@@ -180,7 +180,7 @@ class Settings(BaseModel):
     current_orders_count: int = 0
     waiting_queue_enabled: bool = True
     loyalty_points_rate: float = 0.1  # 10% back in points
-    restaurant_location: Dict[str, float] = {"lat": 32.6947, "lng": 35.0319}
+    restaurant_location: Dict[str, float] = {"lat": 32.6969, "lng": 35.0297}  # Al-Okif Gas Station, Daliyat al-Karmel
     admin_pin: str = "1234"
     instagram_handle: str = "rs_burger1"
     opening_hours: List[OpeningHours] = Field(default_factory=lambda: [
