@@ -1150,6 +1150,7 @@ const AdminPanel = () => {
   const [orders, setOrders] = useState([]);
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const authenticate = async () => {
     try {
