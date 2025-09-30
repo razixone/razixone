@@ -83,6 +83,7 @@ export const CartProvider = ({ children }) => {
 // Header Component
 const Header = () => {
   const { cart } = useCart();
+  const navigate = useNavigate();
   
   return (
     <header className="bg-black text-white p-4 shadow-lg">
@@ -94,7 +95,7 @@ const Header = () => {
         <Button 
           variant="outline" 
           className="bg-yellow-400 text-black hover:bg-yellow-300 border-yellow-400"
-          onClick={() => window.location.href = '/cart'}
+          onClick={() => navigate('/cart')}
         >
           עגלה ({cart.length})
         </Button>
