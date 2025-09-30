@@ -1174,42 +1174,117 @@ const LoyaltyPage = () => {
   );
 };
 
-// Enhanced Business Meals Component
+// Enhanced Step-by-Step Business Meals Component
 const BusinessMeals = () => {
   const [products, setProducts] = useState([]);
+  const [addons, setAddons] = useState([]);
+  const [salads, setSalads] = useState([]);
+  const [sauces, setSauces] = useState([]);
+  const [drinks, setDrinks] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Step state
+  const [currentStep, setCurrentStep] = useState(1);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSaladOption, setSelectedSaladOption] = useState('all'); // 'all', 'dry', 'custom'
+  const [selectedSalads, setSelectedSalads] = useState([]);
+  const [selectedAddons, setSelectedAddons] = useState([]);
+  const [selectedSauces, setSelectedSauces] = useState([]);
+  const [selectedDrink, setSelectedDrink] = useState(null);
+  
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}/products/business_meal`);
-        setProducts(response.data);
+        const [productsRes, addonsRes, saladsRes, saucesRes, drinksRes] = await Promise.all([
+          axios.get(`${API}/products/business_meal`),
+          axios.get(`${API}/addons`),
+          axios.get(`${API}/salads`),
+          axios.get(`${API}/sauces`),
+          axios.get(`${API}/products/drink`)
+        ]);
+        
+        setProducts(productsRes.data);
+        setAddons(addonsRes.data);
+        setSalads(saladsRes.data);
+        setSauces(saucesRes.data);
+        setDrinks(drinksRes.data);
       } catch (error) {
-        console.error('Error fetching business meals:', error);
-        toast.error('שגיאה בטעינת הארוחות העסקיות');
+        console.error('Error fetching data:', error);
+        toast.error('שגיאה בטעינת הנתונים');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, []);
 
-  const handleAddToCart = (product) => {
+  const calculateTotal = () => {
+    let total = selectedProduct ? selectedProduct.price : 0;
+    total += selectedAddons.length * 8; // Each addon is ₪8
+    return total;
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedProduct || !selectedDrink) {
+      toast.error('אנא השלם את כל השלבים');
+      return;
+    }
+
+    // Prepare salads
+    let saladsList = [];
+    if (selectedSaladOption === 'all') {
+      saladsList = salads.map(salad => ({
+        salad_id: salad.id,
+        name_he: salad.name_he
+      }));
+    } else if (selectedSaladOption === 'custom') {
+      saladsList = selectedSalads.map(salad => ({
+        salad_id: salad.id,
+        name_he: salad.name_he
+      }));
+    }
+
+    // Prepare addons
+    const addonsList = selectedAddons.map(addon => ({
+      addon_id: addon.id,
+      name_he: addon.name_he,
+      price: addon.price
+    }));
+
+    // Prepare sauces
+    const saucesList = selectedSauces.map(sauce => ({
+      sauce_id: sauce.id,
+      name_he: sauce.name_he
+    }));
+
     const cartItem = {
-      product_id: product.id,
-      product_name_he: product.name_he,
-      product_type: product.type,
-      size: product.size,
+      product_id: selectedProduct.id,
+      product_name_he: selectedProduct.name_he,
+      product_type: selectedProduct.type,
+      size: selectedProduct.size,
       quantity: 1,
-      base_price: product.price,
-      addons: [],
-      total_price: product.price
+      base_price: selectedProduct.price,
+      addons: addonsList,
+      salads: saladsList,
+      sauces: saucesList,
+      salad_option: selectedSaladOption,
+      total_price: calculateTotal()
     };
-    
+
     addToCart(cartItem);
+    
+    // Reset form
+    setCurrentStep(1);
+    setSelectedProduct(null);
+    setSelectedSaladOption('all');
+    setSelectedSalads([]);
+    setSelectedAddons([]);
+    setSelectedSauces([]);
+    setSelectedDrink(null);
   };
 
   if (loading) {
@@ -1233,37 +1308,342 @@ const BusinessMeals = () => {
           </Button>
           <h1 className="text-4xl font-bold text-yellow-400 mb-2">ארוחות עסקיות</h1>
           <p className="text-gray-300 text-lg">כל ארוחה כוללת בורגר + צ'יפס + שתייה</p>
+          
+          {/* Progress Steps */}
+          <div className="flex justify-center mt-6">
+            <div className="flex items-center space-x-4">
+              {[1, 2, 3, 4, 5].map(step => (
+                <div key={step} className="flex items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                    step <= currentStep ? 'bg-yellow-400 text-black' : 'bg-gray-700 text-gray-400'
+                  }`}>
+                    {step}
+                  </div>
+                  {step < 5 && <div className={`w-8 h-0.5 ${step < currentStep ? 'bg-yellow-400' : 'bg-gray-700'}`} />}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map(product => (
-            <Card key={product.id} className="bg-gradient-to-br from-yellow-400/10 to-transparent border-yellow-400/30 hover:border-yellow-400 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl">
-              <div className="aspect-video bg-gradient-to-br from-yellow-400/20 to-gray-600/20 flex items-center justify-center rounded-t-lg">
-                <div className="text-6xl">🍔</div>
-              </div>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-bold text-xl text-yellow-400 mb-2">{product.name_he}</h3>
-                    <p className="text-sm text-gray-300 mb-3">{product.description_he}</p>
-                    <Badge variant="outline" className="text-yellow-400 border-yellow-400">
-                      {product.size}
-                    </Badge>
+        <div className="max-w-4xl mx-auto">
+          {/* Step 1: Choose Size */}
+          {currentStep === 1 && (
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-yellow-400 text-2xl">שלב 1: בחר גודל</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {products.map(product => (
+                    <div 
+                      key={product.id}
+                      className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                        selectedProduct?.id === product.id 
+                          ? 'border-yellow-500 bg-yellow-500/10 shadow-lg' 
+                          : 'border-gray-600 hover:border-yellow-400 bg-gradient-to-br from-gray-800 to-gray-900'
+                      }`}
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      <div className="text-center">
+                        <div className="text-5xl mb-4">🍔</div>
+                        <h3 className="font-bold text-yellow-400 text-lg mb-2">{product.size}</h3>
+                        <p className="text-gray-300 text-sm mb-3">{product.description_he}</p>
+                        <Badge className="bg-yellow-100 text-yellow-800 text-lg px-3 py-1">
+                          ₪{product.price}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-end mt-8">
+                  <Button 
+                    onClick={() => setCurrentStep(2)}
+                    disabled={!selectedProduct}
+                    className="bg-yellow-400 text-black hover:bg-yellow-300 font-bold px-8 py-3"
+                  >
+                    המשך לשלב הבא ←
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Step 2: Choose Salads */}
+          {currentStep === 2 && (
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-green-400 text-2xl">שלב 2: בחר ירקות</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <Button
+                      variant={selectedSaladOption === 'all' ? 'default' : 'outline'}
+                      onClick={() => setSelectedSaladOption('all')}
+                      className={`p-4 h-auto ${
+                        selectedSaladOption === 'all' 
+                          ? 'bg-green-500 hover:bg-green-400' 
+                          : 'border-green-400 text-green-400 hover:bg-green-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl mb-2">🥗</div>
+                        <div className="font-bold">הכל</div>
+                        <div className="text-sm mt-1">כל הירקות</div>
+                      </div>
+                    </Button>
+
+                    <Button
+                      variant={selectedSaladOption === 'dry' ? 'default' : 'outline'}
+                      onClick={() => setSelectedSaladOption('dry')}
+                      className={`p-4 h-auto ${
+                        selectedSaladOption === 'dry' 
+                          ? 'bg-orange-500 hover:bg-orange-400' 
+                          : 'border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl mb-2">🍞</div>
+                        <div className="font-bold">יבש</div>
+                        <div className="text-sm mt-1">בלי ירקות</div>
+                      </div>
+                    </Button>
+
+                    <Button
+                      variant={selectedSaladOption === 'custom' ? 'default' : 'outline'}
+                      onClick={() => setSelectedSaladOption('custom')}
+                      className={`p-4 h-auto ${
+                        selectedSaladOption === 'custom' 
+                          ? 'bg-blue-500 hover:bg-blue-400' 
+                          : 'border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl mb-2">✋</div>
+                        <div className="font-bold">לפי בחירה</div>
+                        <div className="text-sm mt-1">בחר ירקות</div>
+                      </div>
+                    </Button>
                   </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-yellow-400">₪{product.price}</div>
+
+                  {selectedSaladOption === 'custom' && (
+                    <div className="mt-6">
+                      <h4 className="text-lg font-semibold text-blue-400 mb-4">בחר ירקות:</h4>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {salads.map(salad => (
+                          <div key={salad.id} className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-r from-gray-800 to-gray-900">
+                            <Checkbox
+                              id={salad.id}
+                              checked={selectedSalads.some(s => s.id === salad.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedSalads(prev => [...prev, salad]);
+                                } else {
+                                  setSelectedSalads(prev => prev.filter(s => s.id !== salad.id));
+                                }
+                              }}
+                              className="border-blue-400"
+                            />
+                            <Label htmlFor={salad.id} className="text-gray-300 cursor-pointer mr-2">
+                              {salad.name_he}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex justify-between mt-8">
+                  <Button 
+                    onClick={() => setCurrentStep(1)}
+                    variant="outline"
+                    className="border-gray-600 text-gray-300"
+                  >
+                    ← חזור
+                  </Button>
+                  <Button 
+                    onClick={() => setCurrentStep(3)}
+                    className="bg-yellow-400 text-black hover:bg-yellow-300 font-bold px-8 py-3"
+                  >
+                    המשך לשלב הבא ←
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Step 3: Choose Extras */}
+          {currentStep === 3 && (
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-orange-400 text-2xl">שלב 3: תוספות (₪8 כל אחת)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {addons.map(addon => (
+                    <div key={addon.id} className="flex items-center space-x-3 p-4 rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 hover:from-orange-400/10 hover:to-gray-800 transition-all duration-300">
+                      <Checkbox
+                        id={addon.id}
+                        checked={selectedAddons.some(a => a.id === addon.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedAddons(prev => [...prev, addon]);
+                          } else {
+                            setSelectedAddons(prev => prev.filter(a => a.id !== addon.id));
+                          }
+                        }}
+                        className="border-orange-400"
+                      />
+                      <Label htmlFor={addon.id} className="text-gray-300 cursor-pointer mr-2">
+                        {addon.name_he} (+₪8)
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-between mt-8">
+                  <Button 
+                    onClick={() => setCurrentStep(2)}
+                    variant="outline"
+                    className="border-gray-600 text-gray-300"
+                  >
+                    ← חזור
+                  </Button>
+                  <Button 
+                    onClick={() => setCurrentStep(4)}
+                    className="bg-yellow-400 text-black hover:bg-yellow-300 font-bold px-8 py-3"
+                  >
+                    המשך לשלב הבא ←
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Step 4: Choose Sauces */}
+          {currentStep === 4 && (
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-red-400 text-2xl">שלב 4: רטבים (חינם)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sauces.map(sauce => (
+                    <div key={sauce.id} className="flex items-center space-x-3 p-4 rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 hover:from-red-400/10 hover:to-gray-800 transition-all duration-300">
+                      <Checkbox
+                        id={sauce.id}
+                        checked={selectedSauces.some(s => s.id === sauce.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedSauces(prev => [...prev, sauce]);
+                          } else {
+                            setSelectedSauces(prev => prev.filter(s => s.id !== sauce.id));
+                          }
+                        }}
+                        className="border-red-400"
+                      />
+                      <Label htmlFor={sauce.id} className="text-gray-300 cursor-pointer mr-2">
+                        {sauce.name_he}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-between mt-8">
+                  <Button 
+                    onClick={() => setCurrentStep(3)}
+                    variant="outline"
+                    className="border-gray-600 text-gray-300"
+                  >
+                    ← חזור
+                  </Button>
+                  <Button 
+                    onClick={() => setCurrentStep(5)}
+                    className="bg-yellow-400 text-black hover:bg-yellow-300 font-bold px-8 py-3"
+                  >
+                    המשך לשלב הבא ←
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Step 5: Choose Drink */}
+          {currentStep === 5 && (
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-blue-400 text-2xl">שלב 5: בחר שתייה</CardTitle>
+                <p className="text-gray-300">כלול בארוחה העסקית</p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+                  {drinks.map(drink => (
+                    <div 
+                      key={drink.id}
+                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 text-center ${
+                        selectedDrink?.id === drink.id 
+                          ? 'border-blue-500 bg-blue-500/10 shadow-lg' 
+                          : 'border-gray-600 hover:border-blue-400 bg-gradient-to-br from-gray-800 to-gray-900'
+                      }`}
+                      onClick={() => setSelectedDrink(drink)}
+                    >
+                      <div className="text-2xl mb-2">🥤</div>
+                      <div className="font-medium text-sm text-blue-400">{drink.name_he}</div>
+                      <div className="text-xs text-gray-400 mt-1">כלול</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Order Summary */}
+                <div className="bg-gradient-to-r from-yellow-400/10 to-transparent rounded-xl p-6 border border-yellow-400/30 mb-8">
+                  <h4 className="text-xl font-bold text-yellow-400 mb-4">סיכום הזמנה</h4>
+                  <div className="space-y-2 text-gray-300">
+                    <div>🍔 {selectedProduct?.name_he} ({selectedProduct?.size})</div>
+                    <div>🍟 צ'יפס (כלול)</div>
+                    <div>🥤 {selectedDrink?.name_he || 'לא נבחר'} (כלול)</div>
+                    
+                    {selectedSaladOption === 'all' && <div>🥗 כל הירקות</div>}
+                    {selectedSaladOption === 'dry' && <div>🍞 יבש (בלי ירקות)</div>}
+                    {selectedSaladOption === 'custom' && selectedSalads.length > 0 && (
+                      <div>🥗 {selectedSalads.map(s => s.name_he).join(', ')}</div>
+                    )}
+                    
+                    {selectedAddons.length > 0 && (
+                      <div>➕ תוספות: {selectedAddons.map(a => a.name_he).join(', ')} (+₪{selectedAddons.length * 8})</div>
+                    )}
+                    
+                    {selectedSauces.length > 0 && (
+                      <div>🍅 רטבים: {selectedSauces.map(s => s.name_he).join(', ')}</div>
+                    )}
+                  </div>
+                  
+                  <div className="flex justify-between items-center mt-6 pt-4 border-t border-yellow-400/30">
+                    <span className="text-xl font-bold text-white">סה"כ:</span>
+                    <span className="text-3xl font-bold text-yellow-400">₪{calculateTotal()}</span>
                   </div>
                 </div>
                 
-                <Button 
-                  className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 rounded-full transition-all duration-300 transform hover:scale-105"
-                  onClick={() => handleAddToCart(product)}
-                >
-                  הוסף לעגלה
-                </Button>
+                <div className="flex justify-between">
+                  <Button 
+                    onClick={() => setCurrentStep(4)}
+                    variant="outline"
+                    className="border-gray-600 text-gray-300"
+                  >
+                    ← חזור
+                  </Button>
+                  <Button 
+                    onClick={handleAddToCart}
+                    disabled={!selectedDrink}
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 text-lg"
+                  >
+                    🛒 הוסף לעגלה
+                  </Button>
+                </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
       </main>
     </div>
