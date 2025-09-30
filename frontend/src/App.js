@@ -858,8 +858,684 @@ const ReviewsPage = () => {
   );
 };
 
-// Keep existing components (BusinessMeals, BurgerOnly, etc.) with enhanced styling
-// I'll continue with the rest in the next file...
+// Blog Page Component
+const BlogPage = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get(`${API}/blog`);
+        setPosts(response.data);
+      } catch (error) {
+        console.error('Error fetching blog posts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center">
+        <div className="text-yellow-400 text-2xl">טוען...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white py-12">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-yellow-400 mb-4">חדשות ועדכונים</h1>
+          <p className="text-xl text-gray-300">הישאר מעודכן עם החדשות האחרונות מ-RS Burger</p>
+        </div>
+
+        <div className="max-w-4xl mx-auto space-y-8">
+          {posts.map(post => (
+            <Card key={post.id} className="bg-gradient-to-br from-gray-900 to-black border-gray-700 hover:border-yellow-400 transition-all duration-300 cursor-pointer transform hover:scale-105" onClick={() => navigate(`/blog/${post.id}`)}>
+              <CardContent className="p-8">
+                <h2 className="text-3xl font-bold text-yellow-400 mb-4">{post.title_he}</h2>
+                <p className="text-gray-300 mb-6 text-lg leading-relaxed">{post.summary_he}</p>
+                <div className="flex justify-between items-center">
+                  <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                    קרא עוד
+                  </Badge>
+                  <span className="text-sm text-gray-400">
+                    {new Date(post.created_at).toLocaleDateString('he-IL')}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {posts.length === 0 && (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-6">📰</div>
+            <h3 className="text-2xl font-bold text-yellow-400 mb-4">בקרוב...</h3>
+            <p className="text-gray-300">חדשות ועדכונים יתפרסמו בקרוב</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Blog Post Page Component
+const BlogPostPage = () => {
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const postId = window.location.pathname.split('/').pop();
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const response = await axios.get(`${API}/blog/${postId}`);
+        setPost(response.data);
+      } catch (error) {
+        console.error('Error fetching blog post:', error);
+        navigate('/blog');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [postId, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center">
+        <div className="text-yellow-400 text-2xl">טוען...</div>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-400 mb-4">פוסט לא נמצא</h2>
+          <Button onClick={() => navigate('/blog')}>חזור לבלוג</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white py-12">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto">
+          <Button variant="outline" onClick={() => navigate('/blog')} className="mb-8">
+            ← חזור לבלוג
+          </Button>
+          
+          <article className="bg-gradient-to-br from-gray-900 to-black border border-gray-700 rounded-2xl p-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-yellow-400 mb-6">{post.title_he}</h1>
+            <div className="text-sm text-gray-400 mb-8">
+              {new Date(post.created_at).toLocaleDateString('he-IL')}
+            </div>
+            
+            <div className="prose prose-lg prose-invert max-w-none">
+              <p className="text-gray-300 leading-relaxed text-lg whitespace-pre-line">
+                {post.content_he}
+              </p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Loyalty Page Component
+const LoyaltyPage = () => {
+  const [loyaltyAccount, setLoyaltyAccount] = useState(null);
+  const [showRegistration, setShowRegistration] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: ''
+  });
+
+  const searchAccount = async () => {
+    if (!phone) return;
+    
+    try {
+      const response = await axios.get(`${API}/loyalty/${phone}`);
+      setLoyaltyAccount(response.data);
+    } catch (error) {
+      if (error.response?.status === 404) {
+        setShowRegistration(true);
+        setFormData(prev => ({ ...prev, phone }));
+      } else {
+        toast.error('שגיאה בחיפוש החשבון');
+      }
+    }
+  };
+
+  const registerAccount = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await axios.post(`${API}/loyalty/register`, formData);
+      setLoyaltyAccount(response.data);
+      setShowRegistration(false);
+      toast.success('חשבון נוצר בהצלחה!');
+    } catch (error) {
+      toast.error('שגיאה ביצירת החשבון');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white py-12">
+      <div className="container mx-auto px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-bold text-yellow-400 mb-4">מועדון הנאמנות</h1>
+            <p className="text-xl text-gray-300">צבור נקודות וקבל הנחות בכל הזמנה</p>
+          </div>
+
+          {!loyaltyAccount && !showRegistration && (
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+              <CardContent className="p-8 text-center">
+                <div className="text-6xl mb-6">🎁</div>
+                <h2 className="text-2xl font-bold text-yellow-400 mb-6">חפש את החשבון שלך</h2>
+                <div className="space-y-4">
+                  <Input
+                    type="tel"
+                    placeholder="מספר טלפון"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                  <Button 
+                    onClick={searchAccount}
+                    className="w-full bg-yellow-400 text-black hover:bg-yellow-300 font-bold"
+                  >
+                    חפש חשבון
+                  </Button>
+                </div>
+                
+                <div className="mt-8 p-6 bg-yellow-400/10 rounded-xl border border-yellow-400/30">
+                  <h3 className="text-xl font-bold text-yellow-400 mb-4">איך זה עובד?</h3>
+                  <div className="text-right space-y-2 text-gray-300">
+                    <p>• צבור 10% נקודות בכל הזמנה</p>
+                    <p>• השתמש בנקודות להנחות עד 50%</p>
+                    <p>• הצטרף חינם עם הטלפון שלך</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {showRegistration && (
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-bold text-yellow-400 mb-6 text-center">הצטרף למועדון הנאמנות</h2>
+                
+                <form onSubmit={registerAccount} className="space-y-6">
+                  <div>
+                    <Label htmlFor="name">שם מלא</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({...prev, name: e.target.value}))}
+                      className="bg-gray-800 border-gray-600 text-white"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="phone">טלפון</Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData(prev => ({...prev, phone: e.target.value}))}
+                      className="bg-gray-800 border-gray-600 text-white"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email">אימייל (אופציונלי)</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))}
+                      className="bg-gray-800 border-gray-600 text-white"
+                    />
+                  </div>
+
+                  <div className="flex gap-4">
+                    <Button type="submit" className="flex-1 bg-yellow-400 text-black hover:bg-yellow-300">
+                      הצטרף למועדון
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => setShowRegistration(false)} className="flex-1">
+                      ביטול
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          {loyaltyAccount && (
+            <Card className="bg-gradient-to-br from-yellow-400/10 to-transparent border-yellow-400">
+              <CardContent className="p-8">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-bold text-yellow-400 mb-2">שלום {loyaltyAccount.name}!</h2>
+                  <p className="text-gray-300">חבר מועדון הנאמנות</p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
+                  <div className="text-center p-4 bg-gradient-to-br from-green-400/10 to-transparent rounded-xl border border-green-400/30">
+                    <div className="text-3xl font-bold text-green-400">₪{loyaltyAccount.points.toFixed(0)}</div>
+                    <div className="text-sm text-gray-300">יתרת נקודות</div>
+                  </div>
+
+                  <div className="text-center p-4 bg-gradient-to-br from-blue-400/10 to-transparent rounded-xl border border-blue-400/30">
+                    <div className="text-3xl font-bold text-blue-400">{loyaltyAccount.orders_count}</div>
+                    <div className="text-sm text-gray-300">הזמנות בוצעו</div>
+                  </div>
+
+                  <div className="text-center p-4 bg-gradient-to-br from-purple-400/10 to-transparent rounded-xl border border-purple-400/30">
+                    <div className="text-3xl font-bold text-purple-400">₪{loyaltyAccount.total_spent.toFixed(0)}</div>
+                    <div className="text-sm text-gray-300">סה"כ הוצא</div>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <Button 
+                    className="bg-yellow-400 text-black hover:bg-yellow-300 font-bold px-8 py-3"
+                    onClick={() => navigate('/menu')}
+                  >
+                    השתמש בנקודות - הזמן עכשיו
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Enhanced Business Meals Component
+const BusinessMeals = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(`${API}/products/business_meal`);
+        setProducts(response.data);
+      } catch (error) {
+        console.error('Error fetching business meals:', error);
+        toast.error('שגיאה בטעינת הארוחות העסקיות');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleAddToCart = (product) => {
+    const cartItem = {
+      product_id: product.id,
+      product_name_he: product.name_he,
+      product_type: product.type,
+      size: product.size,
+      quantity: 1,
+      base_price: product.price,
+      addons: [],
+      total_price: product.price
+    };
+    
+    addToCart(cartItem);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center">
+        <div className="text-yellow-400 text-2xl">טוען...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white">      
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/menu')}
+            className="mb-4 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black"
+          >
+            ← חזור לתפריט
+          </Button>
+          <h1 className="text-4xl font-bold text-yellow-400 mb-2">ארוחות עסקיות</h1>
+          <p className="text-gray-300 text-lg">כל ארוחה כוללת בורגר + צ'יפס + שתייה</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {products.map(product => (
+            <Card key={product.id} className="bg-gradient-to-br from-yellow-400/10 to-transparent border-yellow-400/30 hover:border-yellow-400 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl">
+              <div className="aspect-video bg-gradient-to-br from-yellow-400/20 to-gray-600/20 flex items-center justify-center rounded-t-lg">
+                <div className="text-6xl">🍔</div>
+              </div>
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-bold text-xl text-yellow-400 mb-2">{product.name_he}</h3>
+                    <p className="text-sm text-gray-300 mb-3">{product.description_he}</p>
+                    <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                      {product.size}
+                    </Badge>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-yellow-400">₪{product.price}</div>
+                  </div>
+                </div>
+                
+                <Button 
+                  className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 rounded-full transition-all duration-300 transform hover:scale-105"
+                  onClick={() => handleAddToCart(product)}
+                >
+                  הוסף לעגלה
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+// Enhanced Burger Only Component (keeping existing logic, adding premium styling)
+const BurgerOnly = () => {
+  const [products, setProducts] = useState([]);
+  const [addons, setAddons] = useState([]);
+  const [sides, setSides] = useState([]);
+  const [drinks, setDrinks] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedAddons, setSelectedAddons] = useState([]);
+  const [selectedSide, setSelectedSide] = useState(null);
+  const [selectedDrink, setSelectedDrink] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsRes, addonsRes, sidesRes, drinksRes] = await Promise.all([
+          axios.get(`${API}/products/burger_only`),
+          axios.get(`${API}/addons`),
+          axios.get(`${API}/products/side`),
+          axios.get(`${API}/products/drink`)
+        ]);
+        
+        setProducts(productsRes.data);
+        setAddons(addonsRes.data);
+        setSides(sidesRes.data);
+        setDrinks(drinksRes.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast.error('שגיאה בטעינת הנתונים');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const calculateTotal = () => {
+    let total = selectedProduct ? selectedProduct.price : 0;
+    total += selectedAddons.length * 8;
+    total += selectedSide ? selectedSide.price : 0;
+    total += selectedDrink ? selectedDrink.price : 0;
+    return total;
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedProduct) {
+      toast.error('אנא בחר גודל בורגר');
+      return;
+    }
+
+    const addonsList = selectedAddons.map(addon => ({
+      addon_id: addon.id,
+      name_he: addon.name_he,
+      price: addon.price
+    }));
+
+    const cartItem = {
+      product_id: selectedProduct.id,
+      product_name_he: selectedProduct.name_he,
+      product_type: selectedProduct.type,
+      size: selectedProduct.size,
+      quantity: 1,
+      base_price: selectedProduct.price,
+      addons: addonsList,
+      total_price: calculateTotal()
+    };
+
+    addToCart(cartItem);
+    
+    if (selectedSide) {
+      const sideItem = {
+        product_id: selectedSide.id,
+        product_name_he: selectedSide.name_he,
+        product_type: selectedSide.type,
+        quantity: 1,
+        base_price: selectedSide.price,
+        addons: [],
+        total_price: selectedSide.price
+      };
+      addToCart(sideItem);
+    }
+
+    if (selectedDrink) {
+      const drinkItem = {
+        product_id: selectedDrink.id,
+        product_name_he: selectedDrink.name_he,
+        product_type: selectedDrink.type,
+        quantity: 1,
+        base_price: selectedDrink.price,
+        addons: [],
+        total_price: selectedDrink.price
+      };
+      addToCart(drinkItem);
+    }
+
+    setSelectedProduct(null);
+    setSelectedAddons([]);
+    setSelectedSide(null);
+    setSelectedDrink(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center">
+        <div className="text-yellow-400 text-2xl">טוען...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white">
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/menu')}
+            className="mb-4 border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-white"
+          >
+            ← חזור לתפריט
+          </Button>
+          <h1 className="text-4xl font-bold text-orange-400 mb-2">בורגר בלבד</h1>
+          <p className="text-gray-300 text-lg">בחר גודל והתאם אישית את הבורגר שלך</p>
+        </div>
+
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Burger Size Selection */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-orange-400 text-2xl">גודל בורגר</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {products.map(product => (
+                  <div 
+                    key={product.id}
+                    className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+                      selectedProduct?.id === product.id 
+                        ? 'border-orange-500 bg-orange-500/10 shadow-lg' 
+                        : 'border-gray-600 hover:border-orange-400 bg-gradient-to-br from-gray-800 to-gray-900'
+                    }`}
+                    onClick={() => setSelectedProduct(product)}
+                  >
+                    <div className="text-center">
+                      <div className="text-4xl mb-3">🍔</div>
+                      <h4 className="font-bold text-orange-400 mb-2">{product.name_he}</h4>
+                      <Badge className="bg-orange-100 text-orange-800 mb-3">
+                        ₪{product.price}
+                      </Badge>
+                      <div className="text-sm text-gray-300">{product.size}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Addons Selection */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-yellow-400 text-2xl">תוספות (₪8 כל אחת)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {addons.map(addon => (
+                  <div key={addon.id} className="flex items-center space-x-3 p-4 rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 hover:from-yellow-400/10 hover:to-gray-800 transition-all duration-300">
+                    <Checkbox
+                      id={addon.id}
+                      checked={selectedAddons.some(a => a.id === addon.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedAddons(prev => [...prev, addon]);
+                        } else {
+                          setSelectedAddons(prev => prev.filter(a => a.id !== addon.id));
+                        }
+                      }}
+                      className="border-yellow-400 data-[state=checked]:bg-yellow-400"
+                    />
+                    <Label htmlFor={addon.id} className="text-sm font-medium mr-2 text-gray-300 cursor-pointer">
+                      {addon.name_he}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Optional Sides */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-red-400 text-2xl">צדדים (אופציונלי)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-4">
+                {sides.map(side => (
+                  <div 
+                    key={side.id}
+                    className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+                      selectedSide?.id === side.id 
+                        ? 'border-red-500 bg-red-500/10 shadow-lg' 
+                        : 'border-gray-600 hover:border-red-400 bg-gradient-to-br from-gray-800 to-gray-900'
+                    }`}
+                    onClick={() => setSelectedSide(selectedSide?.id === side.id ? null : side)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-3xl mb-2">🍟</div>
+                        <h4 className="font-bold text-red-400 mb-2">{side.name_he}</h4>
+                      </div>
+                      <Badge className="bg-red-100 text-red-800">
+                        ₪{side.price}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Optional Drinks */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-blue-400 text-2xl">שתייה (אופציונלי)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-4 gap-4">
+                {drinks.map(drink => (
+                  <div 
+                    key={drink.id}
+                    className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 text-center transform hover:scale-105 ${
+                      selectedDrink?.id === drink.id 
+                        ? 'border-blue-500 bg-blue-500/10 shadow-lg' 
+                        : 'border-gray-600 hover:border-blue-400 bg-gradient-to-br from-gray-800 to-gray-900'
+                    }`}
+                    onClick={() => setSelectedDrink(selectedDrink?.id === drink.id ? null : drink)}
+                  >
+                    <div className="text-2xl mb-2">🥤</div>
+                    <div className="font-medium text-sm text-blue-400 mb-2">{drink.name_he}</div>
+                    <Badge className="bg-blue-100 text-blue-800">
+                      ₪{drink.price}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Total and Add to Cart */}
+          <Card className="bg-gradient-to-br from-yellow-400/10 to-transparent border-yellow-400">
+            <CardContent className="p-8">
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-2xl font-bold text-white">סה"כ:</span>
+                <span className="text-4xl font-bold text-yellow-400">₪{calculateTotal()}</span>
+              </div>
+              <Button 
+                className="w-full bg-orange-500 hover:bg-orange-400 text-white font-bold py-4 text-xl rounded-full transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleAddToCart}
+                disabled={!selectedProduct}
+              >
+                {!selectedProduct ? 'בחר גודל בורגר' : 'הוסף לעגלה'}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+};
 
 // Wrap App with Toaster
 const AppWithProvider = () => (
