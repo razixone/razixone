@@ -1339,6 +1339,7 @@ const AdminPanel = () => {
 const AppWithProvider = () => (
   <CartProvider>
     <App />
+    <Toaster position="top-center" />
   </CartProvider>
 );
 
