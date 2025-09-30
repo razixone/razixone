@@ -1,94 +1,94 @@
 {
-  "summary": "Backend API testing completed. 13/14 tests passed.",
+  "summary": "Backend API testing completed. 14/14 tests passed.",
   "total_tests": 14,
-  "passed_tests": 13,
-  "failed_tests": 1,
-  "success_rate": 92.85714285714286,
+  "passed_tests": 14,
+  "failed_tests": 0,
+  "success_rate": 100.0,
   "test_results": [
     {
       "test": "Root API",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.078877"
+      "timestamp": "2025-09-30T12:59:30.583475"
     },
     {
       "test": "Seed Database",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.126661"
+      "timestamp": "2025-09-30T12:59:30.629527"
     },
     {
       "test": "Get All Products",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.201641"
+      "timestamp": "2025-09-30T12:59:30.668263"
     },
     {
       "test": "Get Business Meals",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.281463"
+      "timestamp": "2025-09-30T12:59:30.709943"
     },
     {
       "test": "Get Burger Only",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.319603"
+      "timestamp": "2025-09-30T12:59:30.748863"
     },
     {
       "test": "Get Sides",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.357316"
+      "timestamp": "2025-09-30T12:59:30.793457"
     },
     {
       "test": "Get Drinks",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.397110"
+      "timestamp": "2025-09-30T12:59:30.833247"
     },
     {
       "test": "Get Addons",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.436100"
+      "timestamp": "2025-09-30T12:59:30.878110"
     },
     {
       "test": "Get Settings",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.476644"
+      "timestamp": "2025-09-30T12:59:30.916932"
     },
     {
       "test": "Update Settings",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.511931"
+      "timestamp": "2025-09-30T12:59:30.956266"
     },
     {
       "test": "Invalid Admin PIN",
       "success": true,
       "details": "Status: 401",
-      "timestamp": "2025-09-30T12:43:19.549506"
+      "timestamp": "2025-09-30T12:59:30.992808"
     },
     {
       "test": "Get Products for Order Test",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.586949"
+      "timestamp": "2025-09-30T12:59:31.034100"
     },
     {
       "test": "Create Order",
-      "success": false,
-      "details": "Expected 201, got 500. Response: Internal Server Error",
-      "timestamp": "2025-09-30T12:43:19.626456"
+      "success": true,
+      "details": "Status: 201",
+      "timestamp": "2025-09-30T12:59:31.112802"
     },
     {
       "test": "Get All Orders",
       "success": true,
       "details": "Status: 200",
-      "timestamp": "2025-09-30T12:43:19.671504"
+      "timestamp": "2025-09-30T12:59:31.156189"
     }
   ],
-  "timestamp": "2025-09-30T12:43:19.672113"
+  "timestamp": "2025-09-30T12:59:31.156833"
 }
