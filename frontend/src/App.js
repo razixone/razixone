@@ -1537,6 +1537,866 @@ const BurgerOnly = () => {
   );
 };
 
+// Enhanced Extras, Sides & Drinks Component
+const ExtrasSidesDrinks = () => {
+  const [sides, setSides] = useState([]);
+  const [drinks, setDrinks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [sidesRes, drinksRes] = await Promise.all([
+          axios.get(`${API}/products/side`),
+          axios.get(`${API}/products/drink`)
+        ]);
+        
+        setSides(sidesRes.data);
+        setDrinks(drinksRes.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast.error('שגיאה בטעינת הנתונים');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleAddToCart = (product) => {
+    const cartItem = {
+      product_id: product.id,
+      product_name_he: product.name_he,
+      product_type: product.type,
+      quantity: 1,
+      base_price: product.price,
+      addons: [],
+      total_price: product.price
+    };
+    
+    addToCart(cartItem);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center">
+        <div className="text-yellow-400 text-2xl">טוען...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white">
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/menu')}
+            className="mb-4 border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
+          >
+            ← חזור לתפריט
+          </Button>
+          <h1 className="text-4xl font-bold text-red-400 mb-2">תוספות/צ'יפס/שתייה</h1>
+          <p className="text-gray-300 text-lg">הוסף צדדים טעימים להזמנה שלך</p>
+        </div>
+
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Sides */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-red-400 text-2xl">צדדים</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                {sides.map(side => (
+                  <div key={side.id} className="flex items-center justify-between p-6 border border-gray-600 rounded-xl bg-gradient-to-r from-gray-800 to-gray-900 hover:border-red-400 transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center">
+                      <div className="text-4xl mr-4">🍟</div>
+                      <div>
+                        <h3 className="font-bold text-red-400 text-lg">{side.name_he}</h3>
+                        <Badge className="bg-red-100 text-red-800 mt-2">
+                          ₪{side.price}
+                        </Badge>
+                      </div>
+                    </div>
+                    <Button 
+                      className="bg-red-500 hover:bg-red-400 text-white font-bold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105"
+                      onClick={() => handleAddToCart(side)}
+                    >
+                      הוסף לעגלה
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Drinks */}
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-blue-400 text-2xl">שתייה</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {drinks.map(drink => (
+                  <div key={drink.id} className="text-center p-6 border border-gray-600 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 hover:border-blue-400 transition-all duration-300 transform hover:scale-105">
+                    <div className="text-3xl mb-3">🥤</div>
+                    <h3 className="font-bold text-blue-400 mb-3">{drink.name_he}</h3>
+                    <Badge className="bg-blue-100 text-blue-800 mb-4">
+                      ₪{drink.price}
+                    </Badge>
+                    <Button 
+                      className="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 rounded-full transition-all duration-300 transform hover:scale-105"
+                      onClick={() => handleAddToCart(drink)}
+                    >
+                      הוסף לעגלה
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+// Enhanced Cart Component
+const Cart = () => {
+  const { cart, removeFromCart, getTotal, clearCart } = useCart();
+  const navigate = useNavigate();
+
+  if (cart.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white">
+        <main className="container mx-auto px-4 py-8">
+          <Card className="max-w-md mx-auto bg-gradient-to-br from-gray-900 to-black border-gray-700 text-center">
+            <CardContent className="p-12">
+              <div className="text-6xl mb-6">🛒</div>
+              <h2 className="text-2xl font-bold text-yellow-400 mb-4">העגלה ריקה</h2>
+              <p className="text-gray-300 mb-8">עדיין לא הוספת מוצרים לעגלה</p>
+              <Button 
+                onClick={() => navigate('/menu')}
+                className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-8 py-3 rounded-full"
+              >
+                חזור להזמנה
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white">      
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-yellow-400 mb-2">עגלת קניות</h1>
+          <p className="text-gray-300">{cart.length} פריטים בעגלה</p>
+        </div>
+
+        <div className="max-w-2xl mx-auto">
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700 mb-6">
+            <CardContent className="p-6">
+              <div className="space-y-6">
+                {cart.map(item => (
+                  <div key={item.id} className="flex justify-between items-start p-4 border border-gray-600 rounded-xl bg-gradient-to-r from-gray-800/50 to-gray-900/50">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-yellow-400 text-lg">{item.product_name_he}</h3>
+                      {item.size && (
+                        <p className="text-sm text-gray-400 mt-1">גודל: {item.size}</p>
+                      )}
+                      {item.addons && item.addons.length > 0 && (
+                        <div className="text-sm text-gray-400 mt-1">
+                          תוספות: {item.addons.map(addon => addon.name_he).join(', ')}
+                        </div>
+                      )}
+                      <div className="text-xl font-bold text-green-400 mt-2">
+                        ₪{item.total_price}
+                      </div>
+                    </div>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => removeFromCart(item.id)}
+                      className="bg-red-600 hover:bg-red-700 ml-4"
+                    >
+                      🗑️ הסר
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              <Separator className="my-6 bg-gray-600" />
+
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-2xl font-bold text-white">סה"כ:</span>
+                <span className="text-3xl font-bold text-green-400">₪{getTotal()}</span>
+              </div>
+
+              <div className="flex gap-4">
+                <Button 
+                  variant="outline" 
+                  onClick={clearCart}
+                  className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  🗑️ נקה עגלה
+                </Button>
+                <Button 
+                  onClick={() => navigate('/checkout')}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-full"
+                >
+                  💳 לקופה
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+// Enhanced Checkout Component (keeping existing logic, adding premium styling)
+const Checkout = () => {
+  const { cart, getTotal, clearCart } = useCart();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    customer_name: '',
+    customer_phone: '',
+    customer_email: '',
+    order_type: 'pickup',
+    delivery_address: '',
+    notes: '',
+    payment_method: 'מזומן'
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.customer_name || !formData.customer_phone) {
+      toast.error('חסר שם או טלפון');
+      return;
+    }
+
+    if (formData.order_type === 'delivery' && !formData.delivery_address) {
+      toast.error('כתובת לא בטווח משלוחים');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const orderData = {
+        ...formData,
+        order_type: formData.order_type === 'pickup' ? 'איסוף' : 'משלוח',
+        payment_method: formData.payment_method,
+        items: cart.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          addon_ids: item.addons ? item.addons.map(addon => addon.addon_id) : []
+        }))
+      };
+
+      const response = await axios.post(`${API}/orders`, orderData);
+      const order = response.data;
+      
+      toast.success('ההזמנה נוצרה בהצלחה!');
+      clearCart();
+      navigate(`/order-status/${order.id}`);
+      
+    } catch (error) {
+      console.error('Error creating order:', error);
+      if (error.response?.status === 400 && error.response.data.detail === 'יש עומס, ההזמנה נכנסה לתור') {
+        toast.warning('יש עומס כרגע, ההזמנה נכנסה לתור המתנה');
+      } else {
+        toast.error('שגיאה ביצירת ההזמנה');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (cart.length === 0) {
+    navigate('/');
+    return null;
+  }
+
+  const deliveryFee = formData.order_type === 'delivery' ? 15 : 0;
+  const totalWithDelivery = getTotal() + deliveryFee;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white">      
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/cart')}
+            className="mb-4 border-green-400 text-green-400 hover:bg-green-400 hover:text-white"
+          >
+            ← חזור לעגלה
+          </Button>
+          <h1 className="text-4xl font-bold text-green-400 mb-2">פרטי הזמנה</h1>
+          <p className="text-gray-300">מלא את הפרטים להשלמת ההזמנה</p>
+        </div>
+
+        <div className="max-w-2xl mx-auto">
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+            <CardContent className="p-8">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="customer_name" className="text-gray-300">שם מלא *</Label>
+                    <Input
+                      id="customer_name"
+                      value={formData.customer_name}
+                      onChange={(e) => setFormData(prev => ({...prev, customer_name: e.target.value}))}
+                      placeholder="הכנס את שמך המלא"
+                      className="bg-gray-800 border-gray-600 text-white"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="customer_phone" className="text-gray-300">טלפון *</Label>
+                    <Input
+                      id="customer_phone"
+                      value={formData.customer_phone}
+                      onChange={(e) => setFormData(prev => ({...prev, customer_phone: e.target.value}))}
+                      placeholder="050-1234567"
+                      className="bg-gray-800 border-gray-600 text-white"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="customer_email" className="text-gray-300">אימייל (אופציונלי)</Label>
+                  <Input
+                    id="customer_email"
+                    type="email"
+                    value={formData.customer_email}
+                    onChange={(e) => setFormData(prev => ({...prev, customer_email: e.target.value}))}
+                    placeholder="example@email.com"
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-gray-300 mb-3 block">סוג הזמנה</Label>
+                  <RadioGroup
+                    value={formData.order_type}
+                    onValueChange={(value) => setFormData(prev => ({...prev, order_type: value}))}
+                    className="space-y-3"
+                  >
+                    <div className="flex items-center space-x-3 p-4 border border-gray-600 rounded-lg bg-gray-800/50">
+                      <RadioGroupItem value="pickup" id="pickup" className="border-green-400" />
+                      <Label htmlFor="pickup" className="mr-2 text-gray-300 cursor-pointer">איסוף עצמי (חינם)</Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-4 border border-gray-600 rounded-lg bg-gray-800/50">
+                      <RadioGroupItem value="delivery" id="delivery" className="border-green-400" />
+                      <Label htmlFor="delivery" className="mr-2 text-gray-300 cursor-pointer">משלוח (+₪15)</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {formData.order_type === 'delivery' && (
+                  <div>
+                    <Label htmlFor="delivery_address" className="text-gray-300">כתובת משלוח *</Label>
+                    <Input
+                      id="delivery_address"
+                      value={formData.delivery_address}
+                      onChange={(e) => setFormData(prev => ({...prev, delivery_address: e.target.value}))}
+                      placeholder="רחוב, מספר בית, עיר"
+                      className="bg-gray-800 border-gray-600 text-white"
+                      required
+                    />
+                    <p className="text-sm text-gray-400 mt-2">* משלוח זמין באזור דאלית אל כרמל</p>
+                  </div>
+                )}
+
+                <div>
+                  <Label htmlFor="notes" className="text-gray-300">הערות (אופציונלי)</Label>
+                  <Textarea
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) => setFormData(prev => ({...prev, notes: e.target.value}))}
+                    placeholder="הערות מיוחדות להזמנה..."
+                    rows={3}
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-gray-300 mb-3 block">אמצעי תשלום</Label>
+                  <RadioGroup
+                    value={formData.payment_method}
+                    onValueChange={(value) => setFormData(prev => ({...prev, payment_method: value}))}
+                    className="space-y-3"
+                  >
+                    <div className="flex items-center space-x-3 p-4 border border-gray-600 rounded-lg bg-gray-800/50">
+                      <RadioGroupItem value="מזומן" id="cash" className="border-green-400" />
+                      <Label htmlFor="cash" className="mr-2 text-gray-300 cursor-pointer">💵 מזומן</Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-4 border border-gray-600 rounded-lg bg-gray-800/50">
+                      <RadioGroupItem value="Bit" id="bit" className="border-green-400" />
+                      <Label htmlFor="bit" className="mr-2 text-gray-300 cursor-pointer">📱 Bit</Label>
+                    </div>
+                    <div className="flex items-center space-x-3 p-4 border border-gray-600 rounded-lg bg-gray-800/50">
+                      <RadioGroupItem value="כרטיס אשראי" id="card" className="border-green-400" />
+                      <Label htmlFor="card" className="mr-2 text-gray-300 cursor-pointer">💳 כרטיס אשראי</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <Separator className="bg-gray-600" />
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-gray-300">
+                    <span>סכום הזמנה:</span>
+                    <span>₪{getTotal()}</span>
+                  </div>
+                  {deliveryFee > 0 && (
+                    <div className="flex justify-between text-gray-300">
+                      <span>דמי משלוח:</span>
+                      <span>₪{deliveryFee}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center text-xl font-bold">
+                    <span className="text-white">סה"כ לתשלום:</span>
+                    <span className="text-3xl text-green-400">₪{totalWithDelivery}</span>
+                  </div>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 text-xl rounded-full transition-all duration-300 transform hover:scale-105 disabled:opacity-50"
+                  disabled={loading}
+                >
+                  {loading ? '🔄 מעבד...' : '🎯 בצע הזמנה'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+// Enhanced Order Status Component (keeping existing logic, adding premium styling)
+const OrderStatus = () => {
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const orderId = window.location.pathname.split('/').pop();
+    
+    const fetchOrder = async () => {
+      try {
+        const response = await axios.get(`${API}/orders/${orderId}`);
+        setOrder(response.data);
+      } catch (error) {
+        console.error('Error fetching order:', error);
+        toast.error('שגיאה בטעינת ההזמנה');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrder();
+    
+    const interval = setInterval(fetchOrder, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center">
+        <div className="text-yellow-400 text-2xl">טוען...</div>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center text-white">
+        <Card className="max-w-md mx-auto bg-gradient-to-br from-gray-900 to-black border-gray-700 text-center">
+          <CardContent className="p-8">
+            <div className="text-6xl mb-4">❌</div>
+            <h2 className="text-xl font-semibold mb-4 text-red-400">הזמנה לא נמצאה</h2>
+            <Button onClick={() => navigate('/')} className="bg-yellow-400 text-black hover:bg-yellow-300">
+              חזור לדף הבית
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const statusSteps = [
+    { key: 'נוצרה', label: 'נוצרה', icon: '📝', color: 'blue' },
+    { key: 'ממתינה', label: 'ממתינה', icon: '⏳', color: 'yellow' },
+    { key: 'בהכנה', label: 'בהכנה', icon: '👨‍🍳', color: 'orange' },
+    { key: 'מוכן', label: order.order_type === 'משלוח' ? 'בדרכו' : 'מוכן', icon: order.order_type === 'משלוח' ? '🚗' : '✅', color: 'green' }
+  ];
+
+  const currentIndex = statusSteps.findIndex(step => step.key === order.status);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white">      
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700 mb-6">
+            <CardContent className="p-8">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-yellow-400 mb-2">מעקב הזמנה</h1>
+                <p className="text-gray-300">הזמנה מספר: {order.id.slice(-8)}</p>
+                <Badge className={`mt-3 px-3 py-1 text-sm ${
+                  order.status === 'נוצרה' ? 'bg-blue-100 text-blue-800' :
+                  order.status === 'ממתינה' ? 'bg-yellow-100 text-yellow-800' :
+                  order.status === 'בהכנה' ? 'bg-orange-100 text-orange-800' :
+                  'bg-green-100 text-green-800'
+                }`}>
+                  {order.status}
+                </Badge>
+              </div>
+
+              {/* Status Timeline */}
+              <div className="relative">
+                <div className="flex justify-between items-center mb-8">
+                  {statusSteps.map((step, index) => (
+                    <div key={step.key} className="flex flex-col items-center relative z-10">
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl transition-all duration-500 ${
+                        index <= currentIndex 
+                          ? 'bg-gradient-to-br from-green-400 to-green-600 text-white shadow-lg transform scale-110' 
+                          : 'bg-gray-700 text-gray-400'
+                      }`}>
+                        {step.icon}
+                      </div>
+                      <p className={`mt-3 text-sm font-medium transition-colors ${
+                        index <= currentIndex ? 'text-green-400' : 'text-gray-500'
+                      }`}>
+                        {step.label}
+                      </p>
+                      {index < statusSteps.length - 1 && (
+                        <div className={`absolute top-8 right-8 w-20 h-0.5 transition-colors ${
+                          index < currentIndex ? 'bg-green-400' : 'bg-gray-700'
+                        }`} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Separator className="my-6 bg-gray-600" />
+
+              {/* Order Details */}
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">לקוח:</span>
+                  <span className="font-medium text-white">{order.customer_name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">טלפון:</span>
+                  <span className="font-medium text-white">{order.customer_phone}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">סוג הזמנה:</span>
+                  <span className="font-medium text-white">{order.order_type}</span>
+                </div>
+                {order.delivery_address && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">כתובת:</span>
+                    <span className="font-medium text-white">{order.delivery_address}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-400">תשלום:</span>
+                  <span className="font-medium text-white">{order.payment_method}</span>
+                </div>
+                <div className="flex justify-between text-xl font-bold">
+                  <span className="text-white">סה"כ:</span>
+                  <span className="text-green-400">₪{order.total}</span>
+                </div>
+              </div>
+
+              {/* Status Message */}
+              <Alert className="mt-6 bg-gradient-to-r from-yellow-400/10 to-transparent border-yellow-400/50">
+                <AlertDescription className="text-gray-300">
+                  {order.status === 'נוצרה' && '✅ ההזמנה נתקבלה ועומדת בתור להכנה'}
+                  {order.status === 'ממתינה' && '⏳ יש עומס כרגע, ההזמנה ממתינה בתור'}
+                  {order.status === 'בהכנה' && '👨‍🍳 ההזמנה כרגע בהכנה במטבח'}
+                  {order.status === 'מוכן' && order.order_type === 'איסוף' && '🎉 ההזמנה מוכנה לאיסוף!'}
+                  {order.status === 'מוכן' && order.order_type === 'משלוח' && '🚗 ההזמנה יצאה למשלוח ובדרכה אליך!'}
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          <Button 
+            onClick={() => navigate('/')}
+            className="w-full bg-yellow-400 text-black hover:bg-yellow-300 font-bold py-3 rounded-full"
+            variant="outline"
+          >
+            🏠 הזמנה חדשה
+          </Button>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+// Enhanced Admin Panel (keeping existing functionality, adding premium styling)
+const AdminPanel = () => {
+  const [pin, setPin] = useState('');
+  const [authenticated, setAuthenticated] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const authenticate = async () => {
+    try {
+      await axios.patch(`${API}/settings?admin_pin=${pin}`, {});
+      setAuthenticated(true);
+      fetchData();
+    } catch (error) {
+      toast.error('קוד אדמין שגוי');
+    }
+  };
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [ordersRes, settingsRes] = await Promise.all([
+        axios.get(`${API}/orders`),
+        axios.get(`${API}/settings`)
+      ]);
+      setOrders(ordersRes.data);
+      setSettings(settingsRes.data);
+    } catch (error) {
+      toast.error('שגיאה בטעינת הנתונים');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      await axios.patch(`${API}/orders/${orderId}/status?status=${newStatus}`);
+      toast.success('סטטוס עודכן');
+      fetchData();
+    } catch (error) {
+      toast.error('שגיאה בעדכון סטטוס');
+    }
+  };
+
+  const toggleOpen = async () => {
+    try {
+      await axios.patch(`${API}/settings?admin_pin=${pin}`, {
+        is_open: !settings.is_open,
+        manual_override: true
+      });
+      toast.success('סטטוס עודכן');
+      fetchData();
+    } catch (error) {
+      toast.error('שגיאה בעדכון');
+    }
+  };
+
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center text-white">
+        <Card className="max-w-sm mx-auto bg-gradient-to-br from-gray-900 to-black border-gray-700">
+          <CardContent className="p-8">
+            <div className="text-center mb-6">
+              <div className="text-5xl mb-4">🔐</div>
+              <h2 className="text-2xl font-semibold text-yellow-400">כניסה למנהל</h2>
+            </div>
+            <div className="space-y-4">
+              <Input
+                type="password"
+                placeholder="קוד אדמין"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && authenticate()}
+                className="bg-gray-800 border-gray-600 text-white"
+              />
+              <Button 
+                onClick={authenticate}
+                className="w-full bg-yellow-400 text-black hover:bg-yellow-300 font-bold"
+              >
+                🔓 כניסה
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center">
+        <div className="text-yellow-400 text-2xl">טוען...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 text-white">
+      <header className="bg-gradient-to-r from-black to-gray-900 border-b border-gray-700 shadow-xl">
+        <div className="container mx-auto p-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-yellow-400">🔧 פאנל ניהול - RS Burger</h1>
+          <Button 
+            variant="outline"
+            onClick={() => navigate('/')}
+            className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black"
+          >
+            🏠 לאתר
+          </Button>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        {/* Settings */}
+        <Card className="mb-8 bg-gradient-to-br from-gray-900 to-black border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-yellow-400 text-xl">⚙️ הגדרות מסעדה</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-6">
+              <span className="font-medium text-white text-lg">סטטוס מסעדה:</span>
+              <Button
+                onClick={toggleOpen}
+                className={`px-6 py-3 rounded-full font-bold text-lg ${
+                  settings?.is_open 
+                    ? 'bg-green-600 hover:bg-green-700 text-white' 
+                    : 'bg-red-600 hover:bg-red-700 text-white'
+                }`}
+              >
+                {settings?.is_open ? '🟢 פתוח' : '🔴 סגור'}
+              </Button>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4 text-sm">
+              <div className="p-4 bg-gradient-to-r from-blue-400/10 to-transparent rounded-lg border border-blue-400/30">
+                <div className="text-blue-400 font-bold">טווח משלוח</div>
+                <div className="text-white text-lg">{settings?.delivery_radius_km} ק"מ</div>
+              </div>
+              <div className="p-4 bg-gradient-to-r from-green-400/10 to-transparent rounded-lg border border-green-400/30">
+                <div className="text-green-400 font-bold">עלות משלוח</div>
+                <div className="text-white text-lg">₪{settings?.delivery_fee}</div>
+              </div>
+              <div className="p-4 bg-gradient-to-r from-purple-400/10 to-transparent rounded-lg border border-purple-400/30">
+                <div className="text-purple-400 font-bold">מקסימום הזמנות</div>
+                <div className="text-white text-lg">{settings?.max_parallel_orders}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Orders */}
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-yellow-400 text-xl">📋 הזמנות ({orders.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {orders.map(order => (
+                <div key={order.id} className="border border-gray-600 rounded-xl p-6 bg-gradient-to-r from-gray-800/50 to-gray-900/50 hover:border-yellow-400 transition-all duration-300">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="font-bold text-lg text-yellow-400">
+                        {order.customer_name} - {order.customer_phone}
+                      </h3>
+                      <p className="text-sm text-gray-300">
+                        {order.order_type} | ₪{order.total} | {order.payment_method}
+                      </p>
+                      {order.delivery_address && (
+                        <p className="text-sm text-gray-300">📍 {order.delivery_address}</p>
+                      )}
+                    </div>
+                    <Badge className={`px-3 py-1 ${
+                      order.status === 'נוצרה' ? 'bg-blue-100 text-blue-800' :
+                      order.status === 'ממתינה' ? 'bg-yellow-100 text-yellow-800' :
+                      order.status === 'בהכנה' ? 'bg-orange-100 text-orange-800' :
+                      'bg-green-100 text-green-800'
+                    }`}>
+                      {order.status}
+                    </Badge>
+                  </div>
+
+                  <div className="text-sm text-gray-300 mb-4">
+                    {order.items.map((item, index) => (
+                      <div key={index} className="mb-1">
+                        📦 {item.product_name_he} 
+                        {item.size && ` (${item.size})`}
+                        {item.addons.length > 0 && ` + ${item.addons.map(a => a.name_he).join(', ')}`}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button 
+                      size="sm"
+                      onClick={() => updateOrderStatus(order.id, 'נוצרה')}
+                      disabled={order.status === 'נוצרה'}
+                      variant="outline"
+                      className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white disabled:opacity-50"
+                    >
+                      📝 נוצרה
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => updateOrderStatus(order.id, 'ממתינה')}
+                      disabled={order.status === 'ממתינה'}
+                      className="bg-yellow-600 hover:bg-yellow-700 text-white disabled:opacity-50"
+                    >
+                      ⏳ ממתינה
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => updateOrderStatus(order.id, 'בהכנה')}
+                      disabled={order.status === 'בהכנה'}
+                      className="bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50"
+                    >
+                      👨‍🍳 בהכנה
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => updateOrderStatus(order.id, 'מוכן')}
+                      disabled={order.status === 'מוכן'}
+                      className="bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
+                    >
+                      ✅ מוכן
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {orders.length === 0 && (
+              <div className="text-center py-16">
+                <div className="text-6xl mb-4">📋</div>
+                <h3 className="text-xl font-bold text-yellow-400 mb-2">אין הזמנות כרגע</h3>
+                <p className="text-gray-300">הזמנות חדשות יופיעו כאן</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
+};
+
 // Wrap App with Toaster
 const AppWithProvider = () => (
   <>
