@@ -183,7 +183,7 @@ async def get_addons():
     return [Addon(**addon) for addon in addons]
 
 # Orders
-@api_router.post("/orders", response_model=Order)
+@api_router.post("/orders", response_model=Order, status_code=201)
 async def create_order(order_data: OrderCreate):
     # Check if restaurant is open
     settings = await db.settings.find_one({"id": "restaurant_settings"})
