@@ -338,6 +338,7 @@ const BurgerOnly = () => {
   const [selectedDrink, setSelectedDrink] = useState(null);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
