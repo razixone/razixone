@@ -95,7 +95,7 @@ const Header = () => {
             </div>
             <div>
               <div className="text-2xl font-bold text-yellow-400">RS Burger</div>
-              <div className="text-xs text-gray-300">המבורגריה של דאלית אל כרמל</div>
+              <div className="text-xs text-gray-300">ההמבורגר הכי טוב בעוספיא ובדאלית אל כרמל</div>
             </div>
           </div>
           
