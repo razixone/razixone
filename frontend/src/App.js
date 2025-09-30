@@ -1035,7 +1035,7 @@ const OrderStatus = () => {
         <Card className="max-w-md mx-auto text-center">
           <CardContent className="p-8">
             <h2 className="text-xl font-semibold mb-4 text-red-600">הזמנה לא נמצאה</h2>
-            <Button onClick={() => window.location.href = '/'}>
+            <Button onClick={() => navigate('/')}>
               חזור לדף הבית
             </Button>
           </CardContent>
