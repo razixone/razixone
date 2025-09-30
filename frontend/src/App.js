@@ -1001,6 +1001,7 @@ const Checkout = () => {
 const OrderStatus = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const orderId = window.location.pathname.split('/').pop();
