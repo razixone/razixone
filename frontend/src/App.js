@@ -274,6 +274,8 @@ const HeroSection = () => {
 
 // Main App Component
 function App() {
+  usePWA(); // Initialize PWA functionality
+  
   return (
     <CartProvider>
       <div className="App" dir="rtl">
