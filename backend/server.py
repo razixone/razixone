@@ -165,6 +165,14 @@ class OrderItemAddon(BaseModel):
     name_he: str
     price: float
 
+class OrderItemSalad(BaseModel):
+    salad_id: str
+    name_he: str
+
+class OrderItemSauce(BaseModel):
+    sauce_id: str
+    name_he: str
+
 class OrderItem(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     product_id: str
@@ -174,6 +182,9 @@ class OrderItem(BaseModel):
     quantity: int = 1
     base_price: float
     addons: List[OrderItemAddon] = []
+    salads: List[OrderItemSalad] = []
+    sauces: List[OrderItemSauce] = []
+    salad_option: Optional[str] = None  # "all", "dry", or "custom"
     total_price: float
 
 class Order(BaseModel):
