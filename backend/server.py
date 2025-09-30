@@ -411,7 +411,7 @@ async def get_instagram_posts():
 @api_router.post("/orders", response_model=Order, status_code=201)
 async def create_order(order_data: OrderCreate):
     # Check if restaurant is open
-    if not is_restaurant_open():
+    if not await is_restaurant_open():
         raise HTTPException(status_code=400, detail="המסעדה סגורה כרגע")
     
     settings = await db.settings.find_one({"id": "restaurant_settings"})
