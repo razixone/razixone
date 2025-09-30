@@ -243,6 +243,7 @@ const BusinessMeals = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
