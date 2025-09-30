@@ -67,7 +67,35 @@ class DayOfWeek(str, Enum):
     FRIDAY = "שישי"
     SATURDAY = "שבת"
 
-# Models
+# Enhanced Models with Salads, Sauces, and Delivery Zones
+class Salad(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name_he: str
+    available: bool = True
+
+class Sauce(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name_he: str
+    available: bool = True
+
+class DeliveryZone(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name_he: str
+    radius_km: float
+    delivery_fee: float
+    active: bool = True
+
+class Coupon(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    code: str
+    discount_percent: Optional[float] = None
+    discount_amount: Optional[float] = None
+    min_order_amount: float = 0.0
+    active: bool = True
+    expires_at: Optional[datetime] = None
+    max_uses: Optional[int] = None
+    current_uses: int = 0
+
 class Product(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name_he: str
