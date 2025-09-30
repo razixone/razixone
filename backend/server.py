@@ -260,9 +260,9 @@ def parse_from_mongo(item: dict) -> dict:
                 pass
     return item
 
-def is_restaurant_open() -> bool:
+async def is_restaurant_open() -> bool:
     """Check if restaurant is currently open based on schedule"""
-    settings = db.settings.find_one({"id": "restaurant_settings"})
+    settings = await db.settings.find_one({"id": "restaurant_settings"})
     if not settings:
         return True
     
