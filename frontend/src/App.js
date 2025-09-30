@@ -855,7 +855,7 @@ const Checkout = () => {
       
       toast.success('ההזמנה נוצרה בהצלחה!');
       clearCart();
-      window.location.href = `/order-status/${order.id}`;
+      navigate(`/order-status/${order.id}`);
       
     } catch (error) {
       console.error('Error creating order:', error);
