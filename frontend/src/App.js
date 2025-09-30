@@ -201,7 +201,7 @@ const Home = () => {
               <p className="text-gray-600 mb-6">רק הבורגר עם תוספות לפי בחירה</p>
               <Button 
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold"
-                onClick={() => window.location.href = '/burger-only'}
+                onClick={() => navigate('/burger-only')}
               >
                 בחר
               </Button>
