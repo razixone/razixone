@@ -108,6 +108,7 @@ const Header = () => {
 const Home = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSettings = async () => {
